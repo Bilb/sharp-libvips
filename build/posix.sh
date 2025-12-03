@@ -122,7 +122,7 @@ if [ "${PLATFORM%-*}" == "linuxmusl" ] || [ "$DARWIN" = true ]; then
   mkdir ${DEPS}/proxy-libintl
   $CURL https://github.com/frida/proxy-libintl/archive/${VERSION_PROXY_LIBINTL}.tar.gz | tar xzC ${DEPS}/proxy-libintl --strip-components=1
   cd ${DEPS}/proxy-libintl
-  meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON}
+  nice ionice meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON}
   meson install -C _build --tag devel
 fi
 
@@ -145,7 +145,7 @@ mkdir ${DEPS}/glib
 $CURL https://download.gnome.org/sources/glib/$(without_patch $VERSION_GLIB)/glib-${VERSION_GLIB}.tar.xz | tar xJC ${DEPS}/glib --strip-components=1
 cd ${DEPS}/glib
 $CURL https://gist.github.com/kleisauke/284d685efa00908da99ea6afbaaf39ae/raw/bdad5489a61c217850631571caf57f5db6ea8b2c/glib-without-gregex.patch | patch -p1
-meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} --datadir=${TARGET}/share ${MESON} \
+nice ionice meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} --datadir=${TARGET}/share ${MESON} \
   --force-fallback-for=gvdb -Dintrospection=disabled -Dnls=disabled -Dlibmount=disabled -Dsysprof=disabled -Dlibelf=disabled \
   -Dtests=false -Dglib_assert=false -Dglib_checks=false -Dglib_debug=disabled ${DARWIN:+-Dbsymbolic_functions=false}
 # bin-devel is needed for glib-mkenums
@@ -154,7 +154,7 @@ meson install -C _build --tag bin-devel,devel
 mkdir ${DEPS}/xml2
 $CURL https://download.gnome.org/sources/libxml2/$(without_patch $VERSION_XML2)/libxml2-${VERSION_XML2}.tar.xz | tar xJC ${DEPS}/xml2 --strip-components=1
 cd ${DEPS}/xml2
-meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
+nice ionice meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
   -Dminimum=true
 meson install -C _build --tag devel
 
@@ -169,8 +169,8 @@ make install-strip doc_DATA=
 mkdir ${DEPS}/lcms
 $CURL https://github.com/mm2/Little-CMS/releases/download/lcms${VERSION_LCMS}/lcms2-${VERSION_LCMS}.tar.gz | tar xzC ${DEPS}/lcms --strip-components=1
 cd ${DEPS}/lcms
-CFLAGS="${CFLAGS} -O3" meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
-  -Dtests=disabled 
+CFLAGS="${CFLAGS} -O3" nice ionice meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
+  -Dtests=disabled
 meson install -C _build --tag devel
 
 mkdir ${DEPS}/aom
@@ -218,7 +218,7 @@ make install-strip dist_man_MANS=
 mkdir ${DEPS}/imagequant
 $CURL https://github.com/lovell/libimagequant/archive/v${VERSION_IMAGEQUANT}.tar.gz | tar xzC ${DEPS}/imagequant --strip-components=1
 cd ${DEPS}/imagequant
-CFLAGS="${CFLAGS} -O3" meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON}
+CFLAGS="${CFLAGS} -O3" nice ionice meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON}
 meson install -C _build --tag devel
 
 mkdir ${DEPS}/webp
@@ -253,7 +253,7 @@ build_freetype() {
   mkdir ${DEPS}/freetype
   $CURL https://github.com/freetype/freetype/archive/VER-${VERSION_FREETYPE//./-}.tar.gz | tar xzC ${DEPS}/freetype --strip-components=1
   cd ${DEPS}/freetype
-  meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
+  nice ionice meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
     -Dzlib=enabled -Dpng=enabled -Dbrotli=disabled -Dbzip2=disabled "$@"
   meson install -C _build --tag devel
 }
@@ -283,7 +283,7 @@ cd ${DEPS}/fontconfig
 sed -i'.bak' "/subdir('its')/d" meson.build
 # Silence FcInit warnings
 sed -i'.bak' "/using without calling FcInit/d" src/fcobjs.c
-meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
+nice ionice meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
   -Dcache-build=disabled -Ddoc=disabled -Dnls=disabled -Dtests=disabled -Dtools=disabled
 meson install -C _build --tag devel
 
@@ -292,7 +292,7 @@ $CURL https://github.com/harfbuzz/harfbuzz/archive/${VERSION_HARFBUZZ}.tar.gz | 
 cd ${DEPS}/harfbuzz
 # Disable utils
 sed -i'.bak' "/subdir('util')/d" meson.build
-meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
+nice ionice meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
   -Dgobject=disabled -Dicu=disabled -Dtests=disabled -Dintrospection=disabled -Ddocs=disabled -Dbenchmark=disabled ${DARWIN:+-Dcoretext=enabled}
 meson install -C _build --tag devel
 
@@ -308,7 +308,7 @@ build_freetype -Dharfbuzz=enabled
 mkdir ${DEPS}/pixman
 $CURL https://cairographics.org/releases/pixman-${VERSION_PIXMAN}.tar.gz | tar xzC ${DEPS}/pixman --strip-components=1
 cd ${DEPS}/pixman
-meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
+nice ionice meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
   -Dlibpng=disabled -Dgtk=disabled -Dopenmp=disabled -Dtests=disabled -Ddemos=disabled \
   ${WITHOUT_NEON:+-Da64-neon=disabled}
 meson install -C _build --tag devel
@@ -316,7 +316,7 @@ meson install -C _build --tag devel
 mkdir ${DEPS}/cairo
 $CURL https://cairographics.org/releases/cairo-${VERSION_CAIRO}.tar.xz | tar xJC ${DEPS}/cairo --strip-components=1
 cd ${DEPS}/cairo
-meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
+nice ionice meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
   ${LINUX:+-Dquartz=disabled} ${DARWIN:+-Dquartz=enabled} -Dfreetype=enabled -Dfontconfig=enabled -Dtee=disabled -Dxcb=disabled -Dxlib=disabled -Dzlib=disabled \
   -Dtests=disabled -Dspectre=disabled -Dsymbol-lookup=disabled
 meson install -C _build --tag devel
@@ -324,7 +324,7 @@ meson install -C _build --tag devel
 mkdir ${DEPS}/fribidi
 $CURL https://github.com/fribidi/fribidi/releases/download/v${VERSION_FRIBIDI}/fribidi-${VERSION_FRIBIDI}.tar.xz | tar xJC ${DEPS}/fribidi --strip-components=1
 cd ${DEPS}/fribidi
-meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
+nice ionice meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
   -Ddocs=false -Dbin=false -Dtests=false
 meson install -C _build --tag devel
 
@@ -333,7 +333,7 @@ $CURL https://download.gnome.org/sources/pango/$(without_patch $VERSION_PANGO)/p
 cd ${DEPS}/pango
 # Disable utils and tools
 sed -i'.bak' "/subdir('utils')/{N;d;}" meson.build
-meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
+nice ionice meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
   -Ddocumentation=false -Dbuild-testsuite=false -Dbuild-examples=false -Dintrospection=disabled -Dfontconfig=enabled
 meson install -C _build --tag devel
 
@@ -350,7 +350,7 @@ sed -i'.bak' "/^if host_system in \['windows'/s/, 'linux'//" meson.build
 cargo update --workspace
 # Remove the --static flag from the PKG_CONFIG env since Rust does not
 # parse that correctly.
-PKG_CONFIG=${PKG_CONFIG/ --static/} meson setup _build --default-library=static --buildtype=plain --strip --prefix=${TARGET} ${MESON} \
+PKG_CONFIG=${PKG_CONFIG/ --static/} nice ionice meson setup _build --default-library=static --buildtype=plain --strip --prefix=${TARGET} ${MESON} \
   -Dintrospection=disabled -Dpixbuf{,-loader}=disabled -Drsvg-convert=disabled -Ddocs=disabled -Dvala=disabled -Dtests=false \
   ${RUST_TARGET:+-Dtriplet=$RUST_TARGET}
 meson install -C _build --tag devel
@@ -358,7 +358,7 @@ meson install -C _build --tag devel
 mkdir ${DEPS}/cgif
 $CURL https://github.com/dloebl/cgif/archive/v${VERSION_CGIF}.tar.gz | tar xzC ${DEPS}/cgif --strip-components=1
 cd ${DEPS}/cgif
-CFLAGS="${CFLAGS} -O3" meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
+CFLAGS="${CFLAGS} -O3" nice ionice meson setup _build --default-library=static --buildtype=release --strip --prefix=${TARGET} ${MESON} \
   -Dexamples=false -Dtests=false
 meson install -C _build --tag devel
 
@@ -385,7 +385,7 @@ fi
 
 # Disable building man pages, gettext po files, tools, and (fuzz-)tests
 sed -i'.bak' "/subdir('man')/{N;N;N;N;d;}" meson.build
-CFLAGS="${CFLAGS} -O3" CXXFLAGS="${CXXFLAGS} -O3" meson setup _build --default-library=both --buildtype=release --strip --prefix=${TARGET} ${MESON} \
+CFLAGS="${CFLAGS} -O3" CXXFLAGS="${CXXFLAGS} -O3" nice ionice meson setup _build --default-library=both --buildtype=release --strip --prefix=${TARGET} ${MESON} \
   -Ddeprecated=false -Dexamples=false -Dintrospection=disabled -Dmodules=disabled -Dcfitsio=disabled -Dfftw=disabled -Djpeg-xl=disabled \
   ${WITHOUT_HIGHWAY:+-Dhighway=disabled} -Dorc=disabled -Dmagick=disabled -Dmatio=disabled -Dnifti=disabled -Dopenexr=disabled \
   -Dopenjpeg=disabled -Dopenslide=disabled -Dpdfium=disabled -Dpoppler=disabled -Dquantizr=disabled \
